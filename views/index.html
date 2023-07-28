@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Display Users</title>
+</head>
+<body>
+    <h1>User List</h1>
+    <ul id="user-list"></ul>
+
+    <script>
+        fetch('/get-all-users') // Replace this with your server's route to fetch users
+          .then(response => response.json())
+          .then(users => {
+            const userList = document.getElementById('user-list');
+            users.forEach(user => {
+              const listItem = document.createElement('li');
+              listItem.textContent = `${user.name} - ${user.email} - ${user.phone}`;
+              userList.appendChild(listItem);
+            });
+          })
+          .catch(error => console.error('Error fetching users:', error));
+    </script>
+</body>
+</html>

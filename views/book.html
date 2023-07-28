@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" href="bookcall.css">
+    <title>bookcall</title>
+    
+</head>
+
+<body>
+    <div id="container" style="color: black;"> 
+    <table border="2px">
+        <tr>
+       <p><td colspan="2" style="color: orangered;"><h2>Book a Call</h2></td></p></tr> 
+        <tr> 
+        <td colspan="2" style="height: 10px;"><p><b>Book a slot and our representative will call you within 1hr of selected</b>
+        </p></td></tr>
+        <form id="form" action="/book" method="post">
+            <tr>
+                <td colspan="2" style="background-color: aliceblue;"><label for="name">Name</label></td><br>
+             <tr>   <td colspan="2"><input type="text" id="name" name="name" style="width: 600px;"></td></tr> 
+            </tr>
+            <tr>
+                <td colspan="2"><label for="email">Email</label></td>
+             <tr>  <td colspan="2"><input type="email" id="email" name="email" style="width: 600px;"></td></tr>
+            </tr>
+            <tr>
+                <td colspan="2"><label for="phone">Phone</label></td>
+              <tr>  <td colspan="2"><input type="tel" id="phone" name="phone" style="width: 600px;"></td></tr>
+            </tr>   
+            </tr>
+            <tr>
+              <td colspan="3"><button type="submit"  style="background-color: orangered;height: 2.5rem; width: 600px;color: aliceblue;font-size: medium;">Get a Call</button></td>      
+                </tr>
+            </form>
+    </table>
+    <button onclick="showingDetails()" class="btn btn-success" style="width:38rem; text-align: center;">User Details</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+     <script>
+        function showingDetails(){
+
+            let container=document.getElementById('container');
+            let ul=document.createElement('ul');
+            
+            container.appendChild(ul);
+            console.log(ul);
+        fetch('/get-all-users') // Replace this with your server's route to fetch users
+          .then(response => response.json())
+          .then(users => {
+            const userList = document.getElementById('user-list');
+            users.forEach(user => { 
+            let li=document.createElement('li');
+            let edit=document.createElement('button');
+            edit.className="btn btn-primary";
+            edit.textContent='edit';
+            let deleteBtn=document.createElement('button');
+            deleteBtn.className="btn btn-danger";
+            deleteBtn.textContent='delete';
+              let n = `${user.name} - ${user.email} - ${user.phone}`;
+              li.textContent=n;
+              li.appendChild(edit);
+              li.appendChild(deleteBtn);
+              ul.appendChild(li) ;
+              container.appendChild(ul);
+              let email = ` ${user.email}`;
+              email=email.trim();
+              var deleteUrl = 'http://localhost:3000/book/delete/' + email;
+              var updatedUrl = 'http://localhost:3000/book/update/' + email;
+              
+              //to delete
+               deleteBtn.addEventListener("click", function (event) {
+                event.preventDefault();
+                axios.delete(deleteUrl)
+                .then(response=>{
+                    ul.removeChild(li);
+                    console.log('User deleted successfully:', response.data);
+
+                })
+                .catch(err=>console.log(err));
+               });
+                 
+               //UPDATE
+               edit.addEventListener('click', function (event) {
+                event.preventDefault();
+                let updatedName = prompt("Enter updated name:", user.name);
+                let updatedEmail = prompt("Enter updated email:", user.email);
+                let updatedPhone = prompt("Enter updated phone:", user.phone);
+                
+                let updatedUserData = {
+                    name: updatedName,
+                    email: updatedEmail,
+                    phone: updatedPhone
+                };
+
+                axios.put(updatedUrl, updatedUserData)
+                    .then(response => {
+                    let updatedInput = `${updatedName}- ${updatedEmail} - ${updatedPhone}`;
+                    li.textContent = updatedInput;
+                    user.name = updatedName;
+                    user.email = updatedEmail;
+                    user.phone = updatedPhone;
+                    console.log('User updated successfully:', response.data);
+                    })
+                    .catch(err => console.log(err));
+                });
+
+            });
+          })
+          .catch(error => console.error('Error fetching users:', error));
+        }
+    </script>
+</body>
+
+</html>
